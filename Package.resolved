@@ -1,0 +1,15 @@
+{
+  "originHash" : "cd419b1303a3fd673da1572312874424fabb7c16fdbadec7d72ce25ddf2525d9",
+  "pins" : [
+    {
+      "identity" : "localshortcuts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AryanRogye/LocalShortcuts.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e23ac76561eaed074fe22318dac1bd9467cce3a4"
+      }
+    }
+  ],
+  "version" : 3
+}

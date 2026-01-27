@@ -15,7 +15,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(name: "LocalShortcuts", path: "./LocalShortcuts")
+        .package(url: "https://github.com/AryanRogye/LocalShortcuts.git", branch: "main")
     ],
     targets: [
         .target(
