@@ -1,0 +1,31 @@
+//
+//  HighlightModel.swift
+//  TextEditor
+//
+//  Created by Aryan Rogye on 1/18/26.
+//
+
+import Foundation
+import Observation
+
+@Observable
+@MainActor
+final class HighlightModel {
+    var indices: [Int] = []
+
+    var updateHighlightedRanges: ((NSRange, String) -> Void) = { _, _ in }
+    var resetHighlightedRanges: () -> Void = { }
+
+    nonisolated func rangeFor(index: Int) -> NSRange {
+        return NSRange(location: index, length: 1)
+    }
+
+    nonisolated func index(for range: NSRange) -> Int {
+        return range.location
+    }
+
+    public func highlight(_ index: Int, filterText: String) {
+        let r = rangeFor(index: index)
+        updateHighlightedRanges(r, filterText)
+    }
+}
