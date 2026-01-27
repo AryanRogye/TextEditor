@@ -101,9 +101,9 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
     public init(
         text: Binding<String>,
         font: Binding<CGFloat> = .constant(0),
-        isBold: Binding<Bool>,
+        isBold: Binding<Bool> = .constant(false),
         magnification: Binding<CGFloat> = .constant(1),
-        showScrollbar: Binding<Bool>,
+        showScrollbar: Binding<Bool> = .constant(true),
         allowEdit: Binding<Bool> = .constant(true),
         borderRadius: CGFloat = 8,
         isInVimMode: Binding<Bool> = .constant(false),
