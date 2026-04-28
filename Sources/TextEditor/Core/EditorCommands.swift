@@ -7,6 +7,7 @@
 
 @MainActor
 public protocol EditorCommands: AnyObject {
+    func toggleWrap()
     func toggleBold()
     func increaseFontOrZoomIn()
     func decreaseFontOrZoomOut()

@@ -21,6 +21,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
     /// TODO: COMMENT
     @Binding var font: CGFloat
     @Binding var magnification: CGFloat
+    var noWrap: Bool
     @Binding var isBold       : Bool
 
     var currentIndex: Binding<Int?>
@@ -50,6 +51,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
 
     public final class Coordinator {
         var lastChunkCount: Int = 0
+        var lastNoWrap: Bool?
     }
 
     public init(
@@ -63,6 +65,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         font: Binding<CGFloat> = .constant(0),
         isBold: Binding<Bool>,
         magnification: Binding<CGFloat> = .constant(1),
+        noWrap: Bool = true,
         showScrollbar: Binding<Bool>,
         borderRadius: CGFloat = 8,
         isInVimMode: Binding<Bool> = .constant(false),
@@ -85,6 +88,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         self._chunks = chunks
         self._font = font
         self._magnification = magnification
+        self.noWrap = noWrap
         self._isBold = isBold
         self._showScrollbar = showScrollbar
         self._isInVimMode = isInVimMode
@@ -103,6 +107,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         font: Binding<CGFloat> = .constant(0),
         isBold: Binding<Bool> = .constant(false),
         magnification: Binding<CGFloat> = .constant(1),
+        noWrap: Bool = true,
         showScrollbar: Binding<Bool> = .constant(true),
         allowEdit: Binding<Bool> = .constant(true),
         borderRadius: CGFloat = 8,
@@ -124,6 +129,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             font: font,
             isBold: isBold,
             magnification: magnification,
+            noWrap: noWrap,
             showScrollbar: showScrollbar,
             borderRadius: borderRadius,
             isInVimMode: isInVimMode,
@@ -143,6 +149,8 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         text: Binding<String>,
         showScrollbar: Binding<Bool>,
         allowEdit: Binding<Bool> = .constant(true),
+        magnification: Binding<CGFloat> = .constant(1),
+        noWrap: Bool = true,
         isInVimMode: Binding<Bool> = .constant(false),
         editorBackground: Color = .white,
         editorForegroundStyle: Color = .black,
@@ -160,7 +168,8 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             filterText: nil,
             font: .constant(0),
             isBold: .constant(false),
-            magnification: .constant(1),
+            magnification: magnification,
+            noWrap: noWrap,
             showScrollbar: showScrollbar,
             borderRadius: borderRadius,
             isInVimMode: isInVimMode,
@@ -182,6 +191,8 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         filterText: Binding<String>? = nil,
         currentIndex: Binding<Int?> = .constant(nil),
         allowEdit: Binding<Bool> = .constant(true),
+        magnification: Binding<CGFloat> = .constant(1),
+        noWrap: Bool = true,
         showScrollbar: Binding<Bool>,
         isInVimMode: Binding<Bool> = .constant(false),
         editorBackground: Color = .white,
@@ -202,7 +213,8 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             filterText: filterText,
             font: .constant(0),
             isBold: .constant(false),
-            magnification: .constant(1),
+            magnification: magnification,
+            noWrap: noWrap,
             showScrollbar: showScrollbar,
             borderRadius: borderRadius,
             isInVimMode: isInVimMode,
@@ -226,8 +238,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             textViewDelegate      : textViewDelegate,
             magnificationDelegate : magnificationDelegate,
             highlightModel        : highlightModel,
+            isNoWrap              : noWrap,
+            initialMagnification  : magnification,
             onSave                : onSave
         )
+        context.coordinator.lastNoWrap = noWrap
         onReady(viewController)
         onHighlight(viewController)
         if useChunks {
@@ -375,6 +390,15 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         }
 
         nsViewController.vimEngine.onSearchRequested = onSearchRequested
+
+        if context.coordinator.lastNoWrap != noWrap {
+            nsViewController.setNoWrap(noWrap)
+            context.coordinator.lastNoWrap = noWrap
+        }
+
+        if abs(nsViewController.scrollView.magnification - magnification) > 0.0001 {
+            nsViewController.scrollView.setZoom(magnification)
+        }
 
         if nsViewController.scrollView.hasVerticalScroller != showScrollbar {
             nsViewController.scrollView.hasVerticalScroller = showScrollbar

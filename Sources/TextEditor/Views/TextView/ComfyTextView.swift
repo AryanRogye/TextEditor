@@ -17,6 +17,7 @@ final class ComfyTextView: NSTextView {
     }
 
     var vimEngine: VimEngine
+    private(set) var isNoWrap = true
 
     lazy var vimCursorView: NSView = {
         let v = NSView()
@@ -59,6 +60,71 @@ final class ComfyTextView: NSTextView {
         guard let storage = self.textStorage else { return }
         let full = NSRange(location: 0, length: storage.length)
         storage.removeAttribute(.backgroundColor, range: full)
+    }
+
+    public func setNoWrap(_ value: Bool) {
+        guard isNoWrap != value else { return }
+        isNoWrap = value
+
+        if value {
+            configureNoWrap()
+        } else {
+            configureWrap(contentSize: enclosingScrollView?.contentSize ?? bounds.size)
+        }
+    }
+
+    public func configureWrap(contentSize: NSSize) {
+        guard !isNoWrap, let textContainer else { return }
+
+        let wrappingWidth = max(0, contentSize.width)
+        minSize = NSSize(width: 0, height: contentSize.height)
+        maxSize = NSSize(
+            width: CoreFoundation.CGFloat.greatestFiniteMagnitude,
+            height: CoreFoundation.CGFloat.greatestFiniteMagnitude
+        )
+        isVerticallyResizable = true
+        isHorizontallyResizable = false
+        autoresizingMask = [.width]
+        textContainer.widthTracksTextView = true
+        textContainer.heightTracksTextView = false
+        textContainer.lineFragmentPadding = 0
+        textContainer.containerSize = NSSize(
+            width: wrappingWidth,
+            height: CoreFoundation.CGFloat.greatestFiniteMagnitude
+        )
+        if abs(frame.width - wrappingWidth) > 0.5 {
+            setFrameSize(NSSize(width: wrappingWidth, height: max(frame.height, contentSize.height)))
+        }
+        invalidateTextLayout()
+    }
+
+    private func configureNoWrap() {
+        guard let textContainer else { return }
+
+        isVerticallyResizable = true
+        isHorizontallyResizable = true
+        autoresizingMask = [.height]
+        maxSize = NSSize(
+            width: CoreFoundation.CGFloat.greatestFiniteMagnitude,
+            height: CoreFoundation.CGFloat.greatestFiniteMagnitude
+        )
+        textContainer.widthTracksTextView = false
+        textContainer.heightTracksTextView = false
+        textContainer.lineFragmentPadding = 0
+        textContainer.containerSize = NSSize(
+            width: CoreFoundation.CGFloat.greatestFiniteMagnitude,
+            height: CoreFoundation.CGFloat.greatestFiniteMagnitude
+        )
+        invalidateTextLayout()
+    }
+
+    private func invalidateTextLayout() {
+        guard let textContainer else { return }
+
+        layoutManager?.invalidateLayout(forCharacterRange: NSRange(location: 0, length: string.utf16.count), actualCharacterRange: nil)
+        layoutManager?.ensureLayout(for: textContainer)
+        needsLayout = true
+        needsDisplay = true
     }
 
     override func drawInsertionPoint(in rect: NSRect, color: NSColor, turnedOn flag: Bool) {

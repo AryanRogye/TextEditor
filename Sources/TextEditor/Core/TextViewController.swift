@@ -40,6 +40,8 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
     internal var isAppActive: Bool {
         NSApplication.shared.isActive
     }
+    private(set) var isNoWrap: Bool
+    private let initialMagnification: CGFloat
     
     
     // MARK: - Init
@@ -48,12 +50,16 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
         textViewDelegate      : TextViewDelegate,
         magnificationDelegate : MagnificationDelegate,
         highlightModel        : HighlightModel,
+        isNoWrap              : Bool,
+        initialMagnification  : CGFloat,
         onSave                : @escaping () -> Void
     ) {
         self.foregroundStyle = foregroundStyle
         self.textViewDelegate = textViewDelegate
         self.magnificationDelegate = magnificationDelegate
         self.highlightModel = highlightModel
+        self.isNoWrap = isNoWrap
+        self.initialMagnification = initialMagnification
 
         super.init(nibName: nil, bundle: nil)
 
@@ -112,6 +118,11 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
         }
     }
 
+    public override func viewDidLayout() {
+        super.viewDidLayout()
+        updateWrappedTextWidth()
+    }
+
     // MARK: - Load View
     public override func loadView() {
         let root = NSView()
@@ -129,6 +140,8 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
         // Use RedrawClipView for optimized redrawing during zoom
         scrollView.contentView = RedrawClipView()
         scrollView.documentView = textView
+        applyWrapMode()
+        scrollView.setZoom(initialMagnification)
         root.addSubview(scrollView)
         root.addSubview(vimBottomView)
 
@@ -155,6 +168,41 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
     public func setEditorBackground(_ color: NSColor) {
         view.layer?.backgroundColor = color.cgColor
         scrollView.setScrollBackground(color)
+    }
+}
+
+// MARK: - Wrap
+extension TextViewController {
+    public func toggleWrap() {
+        isNoWrap.toggle()
+        applyWrapMode()
+    }
+
+    func setNoWrap(_ value: Bool) {
+        guard isNoWrap != value else { return }
+        isNoWrap = value
+        applyWrapMode()
+    }
+
+    private func applyWrapMode() {
+        scrollView.hasHorizontalScroller = isNoWrap
+        textView.setNoWrap(isNoWrap)
+
+        if !isNoWrap {
+            resetHorizontalScroll()
+            updateWrappedTextWidth()
+        }
+    }
+
+    private func updateWrappedTextWidth() {
+        guard !isNoWrap else { return }
+        textView.configureWrap(contentSize: scrollView.contentSize)
+    }
+
+    private func resetHorizontalScroll() {
+        let clipView = scrollView.contentView
+        clipView.scroll(to: NSPoint(x: 0, y: clipView.bounds.origin.y))
+        scrollView.reflectScrolledClipView(clipView)
     }
 }
 
