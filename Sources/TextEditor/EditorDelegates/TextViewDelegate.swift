@@ -15,6 +15,7 @@ final class TextViewDelegate: NSObject, NSTextViewDelegate, ObservableObject {
     @Published var range: NSRange?
 
     weak var vimEngine: VimEngine?
+    weak var syntaxHighlighter: SyntaxHighlighter?
     weak var textView: NSTextView?
     let fontManager = NSFontManager.shared
 
@@ -62,6 +63,7 @@ final class TextViewDelegate: NSObject, NSTextViewDelegate, ObservableObject {
         if text.wrappedValue != tv.string {
             text.wrappedValue = tv.string
         }
+        syntaxHighlighter?.scheduleHighlight()
     }
 
     func textViewDidChangeSelection(_ notification: Notification) {

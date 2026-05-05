@@ -22,6 +22,7 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
     let scrollView = ComfyScrollView()
     /// Our Implementation of a NSTextView
     lazy var textView = ComfyTextView(vimEngine: vimEngine)
+    lazy var syntaxHighlighter = SyntaxHighlighter(textView: textView)
 
     let highlightModel: HighlightModel
 
@@ -71,6 +72,7 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
         
         /// Assign VimEngine
         textViewDelegate.vimEngine = vimEngine
+        textViewDelegate.syntaxHighlighter = syntaxHighlighter
         
         /// On Updating Insertion Point we should let the textViewDelegate refresh
         vimEngine.buffer.onUpdateInsertionPoint = {
@@ -168,6 +170,15 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
     public func setEditorBackground(_ color: NSColor) {
         view.layer?.backgroundColor = color.cgColor
         scrollView.setScrollBackground(color)
+    }
+
+    public func setSyntaxHighlighting(_ language: SyntaxHighlightLanguage) {
+        syntaxHighlighter.language = language
+    }
+
+    public func setEditorForeground(_ color: NSColor) {
+        textView.textColor = color
+        syntaxHighlighter.baseTextColor = color
     }
 }
 

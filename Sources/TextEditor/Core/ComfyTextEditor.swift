@@ -35,6 +35,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
     var editorBackground: Color
     /// Color of the text
     var editorForegroundStyle: Color
+    var syntaxHighlighting: SyntaxHighlightLanguage
     /// Color of the border
     var borderColor: Color
     /// Border Radius of the entire editor
@@ -69,6 +70,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         showScrollbar: Binding<Bool>,
         borderRadius: CGFloat = 8,
         isInVimMode: Binding<Bool> = .constant(false),
+        syntaxHighlighting: SyntaxHighlightLanguage = .none,
         editorBackground: Color = .white,
         editorForegroundStyle: Color = .black,
         borderColor: Color = Color.gray.opacity(0.3),
@@ -92,6 +94,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         self._isBold = isBold
         self._showScrollbar = showScrollbar
         self._isInVimMode = isInVimMode
+        self.syntaxHighlighting = syntaxHighlighting
         self.editorBackground = editorBackground
         self.editorForegroundStyle = editorForegroundStyle
         self.borderRadius = borderRadius
@@ -112,6 +115,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         allowEdit: Binding<Bool> = .constant(true),
         borderRadius: CGFloat = 8,
         isInVimMode: Binding<Bool> = .constant(false),
+        syntaxHighlighting: SyntaxHighlightLanguage = .none,
         editorBackground: Color = .white,
         editorForegroundStyle: Color = .black,
         borderColor: Color = Color.gray.opacity(0.3),
@@ -133,6 +137,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             showScrollbar: showScrollbar,
             borderRadius: borderRadius,
             isInVimMode: isInVimMode,
+            syntaxHighlighting: syntaxHighlighting,
             editorBackground: editorBackground,
             editorForegroundStyle: editorForegroundStyle,
             borderColor: borderColor,
@@ -152,6 +157,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         magnification: Binding<CGFloat> = .constant(1),
         noWrap: Bool = true,
         isInVimMode: Binding<Bool> = .constant(false),
+        syntaxHighlighting: SyntaxHighlightLanguage = .none,
         editorBackground: Color = .white,
         editorForegroundStyle: Color = .black,
         borderColor: Color = Color.gray.opacity(0.3),
@@ -173,6 +179,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             showScrollbar: showScrollbar,
             borderRadius: borderRadius,
             isInVimMode: isInVimMode,
+            syntaxHighlighting: syntaxHighlighting,
             editorBackground: editorBackground,
             editorForegroundStyle: editorForegroundStyle,
             borderColor: borderColor,
@@ -195,6 +202,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         noWrap: Bool = true,
         showScrollbar: Binding<Bool>,
         isInVimMode: Binding<Bool> = .constant(false),
+        syntaxHighlighting: SyntaxHighlightLanguage = .none,
         editorBackground: Color = .white,
         editorForegroundStyle: Color = .black,
         borderColor: Color = Color.gray.opacity(0.3),
@@ -218,6 +226,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             showScrollbar: showScrollbar,
             borderRadius: borderRadius,
             isInVimMode: isInVimMode,
+            syntaxHighlighting: syntaxHighlighting,
             editorBackground: editorBackground,
             editorForegroundStyle: editorForegroundStyle,
             borderColor: borderColor,
@@ -254,7 +263,8 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         viewController.textView.layer?.backgroundColor = NSColor(editorBackground).cgColor
         viewController.setEditorBackground(NSColor(editorBackground))
         viewController.vimBottomView.setBackground(color: NSColor(editorBackground))
-        viewController.textView.textColor = NSColor(editorForegroundStyle)
+        viewController.setEditorForeground(NSColor(editorForegroundStyle))
+        viewController.setSyntaxHighlighting(syntaxHighlighting)
         viewController.vimBottomView.setBorderColor(color: NSColor(borderColor))
         viewController.textView.isEditable = allowEdit
         viewController.textView.isSelectable = true
@@ -417,7 +427,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
 
         if nsViewController.textView.textColor != NSColor(editorForegroundStyle) {
             nsViewController.vimBottomView.setForegroundStyle(color: editorForegroundStyle)
-            nsViewController.textView.textColor = NSColor(editorForegroundStyle)
+            nsViewController.setEditorForeground(NSColor(editorForegroundStyle))
+        }
+
+        if nsViewController.syntaxHighlighter.language != syntaxHighlighting {
+            nsViewController.setSyntaxHighlighting(syntaxHighlighting)
         }
 
         if nsViewController.vimBottomView.layer?.borderColor != NSColor(borderColor).cgColor {
