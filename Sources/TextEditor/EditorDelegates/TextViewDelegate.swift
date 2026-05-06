@@ -14,7 +14,8 @@ final class TextViewDelegate: NSObject, NSTextViewDelegate, ObservableObject {
 
     @Published var range: NSRange?
 
-    weak var vimEngine: VimEngine?
+    weak var cursorState: CursorState?
+    var cursorBuffer: BufferView?
     weak var syntaxHighlighter: SyntaxHighlighter?
     weak var textView: NSTextView?
     let fontManager = NSFontManager.shared
@@ -52,8 +53,9 @@ final class TextViewDelegate: NSObject, NSTextViewDelegate, ObservableObject {
     ) {
         self.textView = textView
         calculateRange(textView)
-        guard let vimEngine else { return }
-        vimEngine.updatePosition()
+        if let cursorBuffer {
+            cursorState?.update(from: cursorBuffer)
+        }
     }
     
     public func textDidChange(_ notification: Notification) {
@@ -70,8 +72,9 @@ final class TextViewDelegate: NSObject, NSTextViewDelegate, ObservableObject {
         guard let textView = notification.object as? NSTextView else { return }
         self.textView = textView
         calculateRange(textView)
-        guard let vimEngine else { return }
-        vimEngine.updatePosition()
+        if let cursorBuffer {
+            cursorState?.update(from: cursorBuffer)
+        }
     }
 
     func textView(

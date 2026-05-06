@@ -12,6 +12,7 @@ import Combine
 final class VimBottomView: NSView {
     
     var vimEngine : VimEngine
+    var cursorState: CursorState
     
     private let topBorder = CALayer()
     private var borderThickness: CGFloat = 1
@@ -21,14 +22,17 @@ final class VimBottomView: NSView {
     
     lazy var vimStatusView = VimStatus(
         vimEngine: vimEngine,
+        cursorState: cursorState,
         vimStatusVM: vimStatusVM
     )
 
     init(
         vimEngine: VimEngine,
+        cursorState: CursorState,
         foregroundStyle: Color
     ) {
         self.vimEngine = vimEngine
+        self.cursorState = cursorState
         self.foregroundStyle = foregroundStyle
         super.init(frame: .zero)
         

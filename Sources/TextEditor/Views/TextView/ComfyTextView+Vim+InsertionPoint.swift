@@ -29,7 +29,7 @@ extension ComfyTextView {
     func handleVimInsertionPoint(_ rect: NSRect, _ color: NSColor) {
         var blockRect = rect
         
-        if let layoutManager = layoutManager, let textContainer = textContainer, !vimEngine.isOnNewLine, vimEngine.state != .insert {
+        if let layoutManager = layoutManager, let textContainer = textContainer, !cursorState.isOnNewLine, vimEngine.state != .insert {
             
             
             let range = self.selectedRange()

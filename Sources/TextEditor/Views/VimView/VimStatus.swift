@@ -18,6 +18,7 @@ final class VimStatusViewModel: ObservableObject {
 struct VimStatus: View {
     
     @ObservedObject var vimEngine: VimEngine
+    @ObservedObject var cursorState: CursorState
     @ObservedObject var vimStatusVM : VimStatusViewModel
     
     /// This is dependent on if vim is enabled or not
@@ -61,7 +62,7 @@ struct VimStatus: View {
                     }
             }
             Spacer()
-            Text("Line: \(vimEngine.position.map { String($0.line) } ?? "_")  Col: \(vimEngine.position.map { String($0.column) } ?? "_")")
+            Text("Line: \(cursorState.position.map { String($0.line) } ?? "_")  Col: \(cursorState.position.map { String($0.column) } ?? "_")")
                 .font(.system(size: 12, weight: .regular, design: .rounded))
                 .foregroundStyle(vimStatusVM.foregroundStyle)
                 .opacity(opacity)
@@ -78,10 +79,11 @@ struct VimStatus: View {
     @Previewable @StateObject var vimEngine2 = VimEngine()
     @Previewable @StateObject var vimEngine3 = VimEngine()
     @Previewable @StateObject var vimEngine4 = VimEngine()
+    @Previewable @StateObject var cursorState = CursorState()
     
     let test: (VimEngine) -> some View = { engine in
         HStack {
-            VimStatus(vimEngine: engine, vimStatusVM: VimStatusViewModel(foregroundStyle: .white))
+            VimStatus(vimEngine: engine, cursorState: cursorState, vimStatusVM: VimStatusViewModel(foregroundStyle: .white))
             Spacer()
         }
         .border(Color.black)

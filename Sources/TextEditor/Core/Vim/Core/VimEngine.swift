@@ -16,9 +16,6 @@ class VimEngine: ObservableObject {
     /// What the state of vim mode we are in
     @Published var state : VimState = .normal
 
-    @Published var position : Position?
-    @Published var isOnNewLine: Bool = false
-    
     @Published var commandBuffer: String = ":"
 
     var lastShortcut: LocalShortcuts.Shortcut?
@@ -31,16 +28,6 @@ class VimEngine: ObservableObject {
     
     var onSave: (() -> Void)? = nil
     var onSearchRequested: (() -> Void)? = nil
-
-    public func updatePosition() {
-        let p = buffer.cursorPosition()
-        DispatchQueue.main.async {
-            self.position = p
-        }
-        if let c = buffer.char(at: p) {
-            isOnNewLine = c == "\n"
-        }
-    }
 
     init(buffer: BufferView = NSTextViewBufferAdapter()) {
         self.buffer = buffer

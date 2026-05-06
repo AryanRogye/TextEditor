@@ -260,6 +260,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         } else {
             viewController.textView.string = text
         }
+        viewController.cursorState.update(from: viewController.vimEngine.buffer)
         viewController.textView.layer?.backgroundColor = NSColor(editorBackground).cgColor
         viewController.setEditorBackground(NSColor(editorBackground))
         viewController.vimBottomView.setBackground(color: NSColor(editorBackground))

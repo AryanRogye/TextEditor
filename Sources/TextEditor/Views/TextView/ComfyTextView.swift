@@ -17,6 +17,7 @@ final class ComfyTextView: NSTextView {
     }
 
     var vimEngine: VimEngine
+    var cursorState: CursorState
     private(set) var isNoWrap = true
 
     lazy var vimCursorView: NSView = {
@@ -150,9 +151,10 @@ final class ComfyTextView: NSTextView {
         super.keyDown(with: event)
     }
 
-    init(vimEngine: VimEngine) {
+    init(vimEngine: VimEngine, cursorState: CursorState) {
 
         self.vimEngine = vimEngine
+        self.cursorState = cursorState
 
         let textStorage = NSTextStorage()
         let layoutManager = NSLayoutManager()

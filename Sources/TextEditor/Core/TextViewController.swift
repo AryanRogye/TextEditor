@@ -14,6 +14,7 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
     /// macOS Given font manager
     let fontManager = NSFontManager.shared
 
+    let cursorState = CursorState()
     let vimEngine = VimEngine()
 
     // MARK: - View's
@@ -21,7 +22,7 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
     /// Lets us hook into `new delegates`
     let scrollView = ComfyScrollView()
     /// Our Implementation of a NSTextView
-    lazy var textView = ComfyTextView(vimEngine: vimEngine)
+    lazy var textView = ComfyTextView(vimEngine: vimEngine, cursorState: cursorState)
     lazy var syntaxHighlighter = SyntaxHighlighter(textView: textView)
 
     let highlightModel: HighlightModel
@@ -29,7 +30,11 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
     /// Foreground Style
     let foregroundStyle: Color
     /// Bottom Bar for Vim Command Input, etc
-    lazy var vimBottomView = VimBottomView(vimEngine: vimEngine, foregroundStyle: foregroundStyle)
+    lazy var vimBottomView = VimBottomView(
+        vimEngine: vimEngine,
+        cursorState: cursorState,
+        foregroundStyle: foregroundStyle
+    )
 
     // MARK: - Delegates
     /// Text Delegate
@@ -70,8 +75,9 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
         /// Assign On Save Values
         vimEngine.onSave = onSave
         
-        /// Assign VimEngine
-        textViewDelegate.vimEngine = vimEngine
+        /// Assign shared cursor state
+        textViewDelegate.cursorState = cursorState
+        textViewDelegate.cursorBuffer = vimEngine.buffer
         textViewDelegate.syntaxHighlighter = syntaxHighlighter
         
         /// On Updating Insertion Point we should let the textViewDelegate refresh
@@ -238,13 +244,16 @@ extension TextViewController {
     public func increaseFontOrZoomIn() {
         guard isAppActive else { return }
 
+        /// Selected Range
         if let range = textViewDelegate.range, range.length > 0 {
             guard let storage = textView.textStorage else { return }
             updateFont(range, storage: storage, increase: true)
             textViewDelegate.forceFontRefresh(textView: textView)
         } else {
             let newMag = scrollView.magnification + 0.1
-            scrollView.setZoom(newMag)
+            
+            let cursorPoint = pointForRange(cursorState.nsRange, in: textView)
+            scrollView.setZoom(newMag, centeredAt: cursorPoint)
         }
     }
 
@@ -254,13 +263,15 @@ extension TextViewController {
     public func decreaseFontOrZoomOut() {
         guard isAppActive else { return }
 
+        /// Selected Range
         if let range = textViewDelegate.range, range.length > 0 {
             guard let storage = textView.textStorage else { return }
             updateFont(range, storage: storage, increase: false)
             textViewDelegate.forceFontRefresh(textView: textView)
         } else {
             let newMag = scrollView.magnification - 0.1
-            scrollView.setZoom(newMag)
+            let cursorPoint = pointForRange(cursorState.nsRange, in: textView)
+            scrollView.setZoom(newMag, centeredAt: cursorPoint)
         }
     }
 
@@ -275,5 +286,27 @@ extension TextViewController {
             let newFont = fontManager.convert(font, toSize: newSize)
             storage.addAttribute(.font, value: newFont, range: subRange)
         }
+    }
+    
+    internal func pointForRange(_ range: NSRange?, in textView: NSTextView) -> NSPoint? {
+        guard let range else { return nil }
+        guard let layoutManager = textView.layoutManager,
+              let textContainer = textView.textContainer else {
+            return nil
+        }
+        
+        let glyphRange = layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+        
+        let rect = layoutManager.boundingRect(
+            forGlyphRange: glyphRange,
+            in: textContainer
+        )
+        
+        let containerOrigin = textView.textContainerOrigin
+        
+        return NSPoint(
+            x: rect.origin.x + containerOrigin.x,
+            y: rect.origin.y + containerOrigin.y
+        )
     }
 }
