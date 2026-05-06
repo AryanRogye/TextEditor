@@ -84,6 +84,10 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
         vimEngine.buffer.onUpdateInsertionPoint = {
             textViewDelegate.refresh()
         }
+        scrollView.zoomAnchorProvider = { [weak self] in
+            guard let self else { return nil }
+            return self.pointForRange(self.cursorState.nsRange, in: self.textView)
+        }
     }
 
     public func gotoHighlight(_ index: Int) {

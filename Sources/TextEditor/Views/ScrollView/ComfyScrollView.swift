@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import SwiftUI
 
 final class RedrawClipView: NSClipView {
 
@@ -34,7 +35,9 @@ final class RedrawClipView: NSClipView {
 
 final class ComfyScrollView: NSScrollView {
     weak var magnificationDelegate: ScrollViewMagnificationDelegate?
-
+    
+    var zoomAnchorProvider: (() -> NSPoint?)?
+    
     init() {
         super.init(frame: .zero)
 
@@ -68,24 +71,32 @@ final class ComfyScrollView: NSScrollView {
         contentView.layer?.backgroundColor = color.cgColor
     }
 
-    func setZoom(_ value: CGFloat, centeredAt: NSPoint? = nil) {
+    /// Function zooms by a scale factor
+    /// if a centered at value is given then we zoom into that
+    public func setZoom(
+        _ value: CGFloat,
+        centeredAt: NSPoint? = nil
+    ) {
         let clamped = max(minMagnification, min(value, maxMagnification))
 
         let center = NSPoint(x: bounds.midX, y: bounds.midY)
+        
+        /// Change the magnification to this value
         super.setMagnification(clamped, centeredAt: centeredAt ?? center)
 
+        /// Delegates other things
         magnificationDelegate?.scrollView(self, didChangeMagnification: clamped)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
+    /// Pinch Zoom
     override func magnify(with event: NSEvent) {
-        let pointInView = convert(event.locationInWindow, from: nil)
-
+        
         let target = magnification + event.magnification
-        setZoom(target, centeredAt: pointInView)
+        setZoom(target, centeredAt: zoomAnchorProvider?())
         magnificationDelegate?.scrollView(self, didChangeMagnification: magnification)
     }
 
