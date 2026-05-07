@@ -67,12 +67,34 @@ final class SyntaxHighlighter {
         textView.setNeedsDisplay(textView.visibleRect)
     }
 
+
+    /// Colors all code tokens in the given text storage by applying regex passes in sequence.
+    /// Later passes overwrite earlier ones, so comments always win over keywords or strings.
+    ///
+    /// Example:
+    /// ```
+    /// // let x = 42  → entire line goes gray (comment wins over keyword + number)
+    /// let name = "hello"  → "let" purple, "hello" green
+    /// ```
     private func applyCodeHighlighting(to storage: NSTextStorage, fullRange: NSRange) {
         let text = storage.string as NSString
 
-        applyKeywords(to: storage, fullRange: fullRange)
-        apply(pattern: #"(?<![\w.])-?\b\d+(?:\.\d+)?\b"#, color: .systemOrange, to: storage, range: fullRange)
+        /// keywords
+        applyKeywords(
+            to: storage,
+            color: .systemPurple,
+            fullRange: fullRange,
+        )
 
+        /// Number literals
+        apply(
+            pattern: #"(?<![\w.])-?\b\d+(?:\.\d+)?\b"#,
+            color: .systemOrange,
+            to: storage,
+            range: fullRange
+        )
+
+        /// string literals (single + double quoted)
         apply(
             pattern: #""(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'"#,
             color: .systemGreen,
@@ -80,30 +102,31 @@ final class SyntaxHighlighter {
             range: fullRange
         )
 
+        /// (Swift only): raw strings e.g. #"..."#
         if language == .swift {
-            apply(pattern: "#\"(?:\\\\.|[^\"\\\\])*\"#", color: .systemGreen, to: storage, range: fullRange)
+            apply(
+                pattern: "#\"(?:\\\\.|[^\"\\\\])*\"#", color: .systemGreen, to: storage,
+                range: fullRange)
         }
 
+        /// line + block comments
         if language.supportsSlashComments {
             apply(pattern: #"//[^\n\r]*"#, color: .systemGray, to: storage, range: fullRange)
             apply(
-                pattern: #"/\*.*?\*/"#,
-                color: .systemGray,
-                to: storage,
-                range: fullRange,
-                options: [.dotMatchesLineSeparators]
-            )
+                pattern: #"/\*.*?\*/"#, color: .systemGray, to: storage, range: fullRange,
+                options: [.dotMatchesLineSeparators])
         }
 
+        /// (Python): hash comments e.g. # this is a comment
         if language.supportsHashComments {
             apply(pattern: #"#[^\n\r]*"#, color: .systemGray, to: storage, range: fullRange)
         }
 
+        // (JSON only): object keys e.g. "name":
         if language == .json {
-            apply(pattern: #""(?:\\.|[^"\\])*"\s*:"#,
-                  color: .systemBlue,
-                  to: storage,
-                  range: NSRange(location: 0, length: text.length))
+            apply(
+                pattern: #""(?:\\.|[^"\\])*"\s*:"#, color: .systemBlue, to: storage,
+                range: NSRange(location: 0, length: text.length))
         }
     }
 
@@ -121,7 +144,11 @@ final class SyntaxHighlighter {
         apply(pattern: #"\[[^\]]+\]\([^)]+\)"#, color: .systemTeal, to: storage, range: fullRange)
     }
 
-    private func applyKeywords(to storage: NSTextStorage, fullRange: NSRange) {
+    private func applyKeywords(
+        to storage: NSTextStorage,
+        color: NSColor,
+        fullRange: NSRange
+    ) {
         guard !language.keywords.isEmpty else { return }
         let escaped = language.keywords
             .map { NSRegularExpression.escapedPattern(for: $0) }
@@ -129,7 +156,7 @@ final class SyntaxHighlighter {
             .joined(separator: "|")
 
         apply(pattern: #"(?<![A-Za-z0-9_])("# + escaped + #")(?![A-Za-z0-9_])"#,
-              color: .systemPurple,
+              color: color,
               to: storage,
               range: fullRange)
     }

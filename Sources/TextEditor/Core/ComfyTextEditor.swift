@@ -31,13 +31,10 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
     @Binding var isInVimMode: Bool
     /// Boolean if is showing scrollbar or not
     @Binding var showScrollbar: Bool
-    /// Color of the editor background
-    var editorBackground: Color
-    /// Color of the text
-    var editorForegroundStyle: Color
+    
+    var colorConfig: ColorConfig
+    
     var syntaxHighlighting: SyntaxHighlightLanguage
-    /// Color of the border
-    var borderColor: Color
     /// Border Radius of the entire editor
     var borderRadius: CGFloat
 
@@ -95,10 +92,12 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         self._showScrollbar = showScrollbar
         self._isInVimMode = isInVimMode
         self.syntaxHighlighting = syntaxHighlighting
-        self.editorBackground = editorBackground
-        self.editorForegroundStyle = editorForegroundStyle
+        self.colorConfig = ColorConfig(
+            editorBackground: editorBackground,
+            editorForegroundStyle: editorForegroundStyle,
+            borderColor: borderColor,
+        )
         self.borderRadius = borderRadius
-        self.borderColor = borderColor
         self.onHighlightUpdated = onHighlightUpdated
         self.onHighlight = onHighlight
         self.currentIndex = currentIndex
@@ -243,7 +242,7 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
 
     public func makeNSViewController(context: Context) -> TextViewController {
         let viewController = TextViewController(
-            foregroundStyle       : editorForegroundStyle,
+            foregroundStyle       : colorConfig.editorForegroundStyle,
             textViewDelegate      : textViewDelegate,
             magnificationDelegate : magnificationDelegate,
             highlightModel        : highlightModel,
@@ -261,12 +260,10 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             viewController.textView.string = text
         }
         viewController.cursorState.update(from: viewController.vimEngine.buffer)
-        viewController.textView.layer?.backgroundColor = NSColor(editorBackground).cgColor
-        viewController.setEditorBackground(NSColor(editorBackground))
-        viewController.vimBottomView.setBackground(color: NSColor(editorBackground))
-        viewController.setEditorForeground(NSColor(editorForegroundStyle))
+        
+        viewController.applyColorConfig(colorConfig)
         viewController.setSyntaxHighlighting(syntaxHighlighting)
-        viewController.vimBottomView.setBorderColor(color: NSColor(borderColor))
+        
         viewController.textView.isEditable = allowEdit
         viewController.textView.isSelectable = true
         viewController.vimEngine.onSearchRequested = onSearchRequested
@@ -415,28 +412,10 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             nsViewController.scrollView.hasVerticalScroller = showScrollbar
         }
 
-        if nsViewController.textView.layer?.backgroundColor != NSColor(editorBackground).cgColor {
-            nsViewController.textView.layer?.backgroundColor = NSColor(editorBackground).cgColor
-            nsViewController.setEditorBackground(NSColor(editorBackground))
-        }
-
-        if nsViewController.vimBottomView.layer?.backgroundColor
-            != NSColor(editorBackground).cgColor
-        {
-            nsViewController.vimBottomView.setBackground(color: NSColor(editorBackground))
-        }
-
-        if nsViewController.textView.textColor != NSColor(editorForegroundStyle) {
-            nsViewController.vimBottomView.setForegroundStyle(color: editorForegroundStyle)
-            nsViewController.setEditorForeground(NSColor(editorForegroundStyle))
-        }
+        nsViewController.applyColorConfig(colorConfig)
 
         if nsViewController.syntaxHighlighter.language != syntaxHighlighting {
             nsViewController.setSyntaxHighlighting(syntaxHighlighting)
-        }
-
-        if nsViewController.vimBottomView.layer?.borderColor != NSColor(borderColor).cgColor {
-            nsViewController.vimBottomView.setBorderColor(color: NSColor(borderColor))
         }
 
         if nsViewController.textView.isEditable != allowEdit {

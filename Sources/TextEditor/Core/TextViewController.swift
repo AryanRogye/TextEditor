@@ -171,24 +171,57 @@ public class TextViewController: NSViewController, EditorCommands, HighlightComm
             vimBottomView.heightAnchor.constraint(equalToConstant: 24),
         ])
     }
+    
+    public func applyColorConfig(_ config: ColorConfig) {
+        
+        let editorBackground = NSColor(config.editorBackground)
+        setEditorBackground(editorBackground)
+        
+        let editorForegroundStyle = NSColor(config.editorForegroundStyle)
+        setEditorForeground(editorForegroundStyle)
+        
+        let borderColor = NSColor(config.borderColor)
+        setBorderColor(borderColor)
+    }
 
     public func setCornerRadius(_ value: CGFloat) {
         view.layer?.cornerRadius = value
     }
+    
+    internal func setBorderColor(_ color: NSColor) {
+        vimBottomView.setBorderColor(color: color)
+    }
 
     /// Sets the background color for the entire editor area
-    public func setEditorBackground(_ color: NSColor) {
-        view.layer?.backgroundColor = color.cgColor
-        scrollView.setScrollBackground(color)
+    internal func setEditorBackground(_ color: NSColor) {
+        
+        /// Update TextView + ScrollView Background If Have to
+        if textView.layer?.backgroundColor != color.cgColor {
+            textView.layer?.backgroundColor = color.cgColor
+            scrollView.setScrollBackground(color)
+        }
+
+        if view.layer?.backgroundColor != color.cgColor {
+            view.layer?.backgroundColor = color.cgColor
+        }
+        
+        /// Update Vim Bottom View Background If Have to
+        if vimBottomView.layer?.backgroundColor != color.cgColor {
+            vimBottomView.setBackground(color: color)
+        }
     }
 
+    internal func setEditorForeground(_ color: NSColor) {
+        if textView.textColor != color {
+            textView.textColor = color
+            syntaxHighlighter.baseTextColor = color
+        }
+
+        vimBottomView.setForegroundStyle(color: color)
+    }
+    
     public func setSyntaxHighlighting(_ language: SyntaxHighlightLanguage) {
         syntaxHighlighter.language = language
-    }
-
-    public func setEditorForeground(_ color: NSColor) {
-        textView.textColor = color
-        syntaxHighlighter.baseTextColor = color
     }
 }
 

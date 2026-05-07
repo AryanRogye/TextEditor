@@ -57,6 +57,13 @@ final class VimBottomView: NSView {
         }
     }
     
+    public func setForegroundStyle(color: NSColor) {
+        DispatchQueue.main.async {
+            self.vimStatusVM.foregroundStyle = Color(nsColor: color)
+        }
+    }
+
+    
     public func setBorderColor(color: NSColor) {
         wantsLayer = true
         topBorder.backgroundColor = color.cgColor
