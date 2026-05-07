@@ -172,3 +172,6 @@ The package includes tests for the Vim engine and movement behavior. Run them wi
 ```sh
 swift test
 ```
+
+<img width="1288" height="886" alt="Screenshot 2026-05-06 at 9 06 34 PM" src="https://github.com/user-attachments/assets/9536a788-3b79-4243-9c41-6d6791567617" />
+
