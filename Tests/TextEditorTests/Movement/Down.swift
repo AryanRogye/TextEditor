@@ -37,6 +37,32 @@ extension TextEditorTests {
         #expect(selection?.location == 0)
         #expect(selection?.length == 17) // Spans all lines including implied newlines
     }
+
+    @Test
+    func textViewVisualLineCanMoveDownFromIngColumnsInLongLineOverOneCharacterLine() {
+        let lines = [
+            "SOMETHING",
+            "1",
+            "HERE"
+        ]
+        let text = lines.joined(separator: "\n")
+
+        for column in 6..<lines[0].count {
+            let startOffset = Util.offset(in: lines, line: 0, column: column)
+            let (buffer, _) = Util.makeTextViewBuffer(text: text, cursorOffset: startOffset)
+            let vimEngine = VimEngine(buffer: buffer)
+
+            vimEngine.state = .visualLine
+            vimEngine.visualAnchorLocation = buffer.cursorOffset()
+            buffer.updateCursorAndSelectLine(anchor: vimEngine.visualAnchorLocation, to: buffer.cursorOffset())
+            vimEngine.handleVimEvent(Util.makeKeyEvent("j"))
+            vimEngine.handleVimEvent(Util.makeKeyEvent("j"))
+
+            let selection = buffer.getCursorPosition()
+            #expect(selection?.location == 0, "column \(column) should keep selecting from SOMETHING")
+            #expect(selection?.length == text.utf16.count, "column \(column) should extend selection through HERE")
+        }
+    }
     
     @Test
     func moveDownBetweenNewLinesVisual() {

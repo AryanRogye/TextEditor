@@ -115,6 +115,30 @@ final class MotionEngine {
         return Position(line: current.line, column: 0)
     }
     
+    public func upVisualLine(_ currentPos: Position? = nil) -> Position {
+        let current = currentPos ?? buffer.cursorPosition()
+        
+        /// Can't move past the first line
+        guard current.line > 0 else { return current }
+        
+        return resolveVisualLineVerticalMove(
+            current,
+            direction: -1
+        )
+    }
+
+    public func downVisualLine(_ currentPos: Position? = nil) -> Position {
+        let current = currentPos ?? buffer.cursorPosition()
+        
+        /// Can't move past the last line
+        guard current.line < buffer.lineCount() - 1 else { return current }
+
+        return resolveVisualLineVerticalMove(
+            current,
+            direction: 1
+        )
+    }
+
     // MARK: - Up
     public func up(_ currentPos: Position? = nil) -> Position {
         let current = currentPos ?? buffer.cursorPosition()
@@ -240,5 +264,56 @@ final class MotionEngine {
         }
         
         return pos
+    }
+
+    private func resolveVisualLineVerticalMove(
+        _ current: Position,
+        direction: Int
+    ) -> Position {
+        guard let selection = buffer.getCursorPosition(),
+              selection.length > 0,
+              let text = buffer.getString() else {
+            return Position(
+                line: current.line + direction,
+                column: 0
+            )
+        }
+
+        let startOffset = selection.location
+        let endOffset = max(selection.location, selection.location + selection.length - 1)
+        let startLine = position(for: startOffset, in: text).line
+        let endLine = position(for: endOffset, in: text).line
+        let selectedEdgeLine = direction < 0 ? startLine : endLine
+        let targetLine = selectedEdgeLine + direction
+        let clampedLine = min(max(targetLine, 0), buffer.lineCount() - 1)
+
+        return Position(line: clampedLine, column: 0)
+    }
+
+    private func position(for offset: Int, in text: NSString) -> Position {
+        let clampedOffset = min(max(offset, 0), text.length)
+        var line = 0
+        var lineStart = 0
+
+        text.enumerateSubstrings(
+            in: NSRange(location: 0, length: text.length),
+            options: .byLines
+        ) { _, range, enclosingRange, stop in
+            if clampedOffset >= enclosingRange.location && clampedOffset < NSMaxRange(enclosingRange) {
+                lineStart = range.location
+                stop.pointee = true
+                return
+            }
+
+            if clampedOffset == text.length, NSMaxRange(enclosingRange) == text.length {
+                lineStart = range.location
+                stop.pointee = true
+                return
+            }
+
+            line += 1
+        }
+
+        return Position(line: line, column: clampedOffset - lineStart)
     }
 }

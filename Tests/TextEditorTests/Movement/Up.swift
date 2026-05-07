@@ -38,6 +38,103 @@ extension TextEditorTests {
     }
     
     @Test
+    func visualLineMoveUpFromEachColumnAcrossShortLine() {
+        for column in 0..<"SOMETHING".count {
+            let buffer = FakeBuffer(
+                lines: [
+                    "HERE",
+                    "1",
+                    "SOMETHING"
+                ],
+                cursor: Position(line: 2, column: column)
+            )
+            
+            let vimEngine = VimEngine(buffer: buffer)
+            vimEngine.state = .visualLine
+            vimEngine.visualAnchorLocation = buffer.cursorOffset()
+            
+            vimEngine.handleVimEvent(Util.makeKeyEvent("k"))
+            vimEngine.handleVimEvent(Util.makeKeyEvent("k"))
+            
+            let pos = buffer.cursorPosition()
+            
+            #expect(pos.line == 0, "Failed from column \(column)")
+        }
+    }
+    
+    @Test
+    func canMoveUpAfterStartingOnLongBlockAndAboveOneCharacter() {
+        let buffer = FakeBuffer(
+            lines: [
+                "HERE",
+                "1",
+                "SOMETHING"
+            ],
+            cursor: Position(line: 2, column: 0)
+        )
+        
+        let vimEngine = VimEngine(buffer: buffer)
+        vimEngine.state = .visualLine
+        vimEngine.visualAnchorLocation = buffer.cursorOffset()
+        vimEngine.handleVimEvent(Util.makeKeyEvent("k"))
+        vimEngine.handleVimEvent(Util.makeKeyEvent("k"))
+        
+        let newCursorPos = buffer.cursorPosition()
+        #expect(newCursorPos.line == 0)
+        #expect(newCursorPos.column == 0)
+    }
+
+    @Test
+    func textViewVisualLineCanMoveUpFromEveryColumnInLongLineOverOneCharacterLine() {
+        let lines = [
+            "HERE",
+            "1",
+            "SOMETHING"
+        ]
+        let text = lines.joined(separator: "\n")
+
+        for column in 0..<lines[2].count {
+            let startOffset = Util.offset(in: lines, line: 2, column: column)
+            let (buffer, _) = Util.makeTextViewBuffer(text: text, cursorOffset: startOffset)
+            let vimEngine = VimEngine(buffer: buffer)
+
+            vimEngine.state = .visualLine
+            vimEngine.visualAnchorLocation = buffer.cursorOffset()
+            buffer.updateCursorAndSelectLine(anchor: vimEngine.visualAnchorLocation, to: buffer.cursorOffset())
+            vimEngine.handleVimEvent(Util.makeKeyEvent("k"))
+            vimEngine.handleVimEvent(Util.makeKeyEvent("k"))
+
+            let cursor = buffer.cursorPosition()
+            #expect(cursor.line == 0, "column \(column) should move above the one-character line")
+        }
+    }
+
+    @Test
+    func textViewVisualLineCanMoveUpFromEveryColumnInLastLineOverOneCharacterLine() {
+        let lines = [
+            "SOMETHING",
+            "1",
+            "HERE"
+        ]
+        let text = lines.joined(separator: "\n")
+
+        for column in 0..<lines[2].count {
+            let startOffset = Util.offset(in: lines, line: 2, column: column)
+            let (buffer, _) = Util.makeTextViewBuffer(text: text, cursorOffset: startOffset)
+            let vimEngine = VimEngine(buffer: buffer)
+
+            vimEngine.state = .visualLine
+            vimEngine.visualAnchorLocation = buffer.cursorOffset()
+            buffer.updateCursorAndSelectLine(anchor: vimEngine.visualAnchorLocation, to: buffer.cursorOffset())
+            vimEngine.handleVimEvent(Util.makeKeyEvent("k"))
+            vimEngine.handleVimEvent(Util.makeKeyEvent("k"))
+
+            let cursor = buffer.cursorPosition()
+            #expect(cursor.line == 0, "column \(column) should move above the one-character line")
+        }
+    }
+    
+    @Test
     func movesUpBetweenNewLinesVisual() {
         let buffer = FakeBuffer(
             lines: [

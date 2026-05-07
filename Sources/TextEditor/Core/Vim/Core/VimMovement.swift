@@ -34,14 +34,29 @@ extension VimEngine {
     }
     internal func moveUp() {
         let visualAnchorPos: Position? = buffer.currentVisualHead(anchor: visualAnchorLocation)
-        let pos: Position = motionEngine.up(visualAnchorPos)
+        
+        let pos: Position
+        if state == .visualLine {
+            pos = motionEngine.upVisualLine(visualAnchorPos)
+        } else {
+            pos = motionEngine.up(visualAnchorPos)
+        }
+        
         buffer.moveTo(position: pos)
     }
     internal func moveDown() {
         let visualAnchorPos: Position? = buffer.currentVisualHead(anchor: visualAnchorLocation)
-        let pos: Position = motionEngine.down(visualAnchorPos)
+        
+        let pos: Position
+        if state == .visualLine {
+            pos = motionEngine.downVisualLine(visualAnchorPos)
+        } else {
+            pos = motionEngine.down(visualAnchorPos)
+        }
+        
         buffer.moveTo(position: pos)
     }
+    
     internal func moveToEndOfLine() {
         let visualAnchorPos: Position? = buffer.currentVisualHead(anchor: visualAnchorLocation)
         let pos: Position = motionEngine.moveToEndOfLine(visualAnchorPos)
