@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/7/25.
 //
 
+#if os(macOS)
+
 import Foundation
 
 @MainActor
@@ -317,3 +319,4 @@ final class MotionEngine {
         return Position(line: line, column: clampedOffset - lineStart)
     }
 }
+#endif

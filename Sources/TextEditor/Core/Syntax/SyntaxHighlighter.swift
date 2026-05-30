@@ -5,6 +5,8 @@
 //  Created by OpenAI on 5/5/26.
 //
 
+#if os(macOS)
+
 import AppKit
 
 @MainActor
@@ -52,7 +54,11 @@ final class SyntaxHighlighter {
         guard fullRange.length > 0 else { return }
 
         storage.beginEditing()
-        storage.addAttribute(.foregroundColor, value: baseTextColor, range: fullRange)
+        storage.addAttribute(
+            .foregroundColor,
+            value: baseTextColor,
+            range: fullRange
+        )
 
         switch language {
         case .none:
@@ -175,3 +181,4 @@ final class SyntaxHighlighter {
         }
     }
 }
+#endif

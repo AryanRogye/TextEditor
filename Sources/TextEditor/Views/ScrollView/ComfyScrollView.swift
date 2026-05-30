@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/2/25.
 //
 
+#if os(macOS)
+
 import AppKit
 import SwiftUI
 
@@ -113,3 +115,4 @@ final class ComfyScrollView: NSScrollView {
         magnificationDelegate?.scrollView(self, didChangeMagnification: magnification)
     }
 }
+#endif

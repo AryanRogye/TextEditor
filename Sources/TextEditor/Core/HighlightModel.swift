@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 1/18/26.
 //
 
+#if os(macOS)
+
 import Foundation
 import Observation
 
@@ -29,3 +31,4 @@ final class HighlightModel {
         updateHighlightedRanges(r, filterText)
     }
 }
+#endif

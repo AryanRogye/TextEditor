@@ -5,6 +5,8 @@
 //  Created by OpenAI on 5/5/26.
 //
 
+#if os(macOS)
+
 import Foundation
 
 public enum SyntaxHighlightLanguage: Equatable, Sendable {
@@ -74,3 +76,4 @@ extension SyntaxHighlightLanguage {
         self == .python
     }
 }
+#endif

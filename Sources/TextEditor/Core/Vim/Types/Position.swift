@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/7/25.
 //
 
+#if os(macOS)
+
 import Foundation
 
 public struct Position: Identifiable, Equatable {
@@ -16,3 +18,4 @@ public struct Position: Identifiable, Equatable {
         lhs.line == rhs.line && lhs.column == rhs.column
     }
 }
+#endif

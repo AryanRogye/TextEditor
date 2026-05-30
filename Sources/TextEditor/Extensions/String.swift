@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/6/25.
 //
 
+#if os(macOS)
+
 import Foundation
 
 extension String {
@@ -25,3 +27,4 @@ extension String {
         return ch == "\n"
     }
 }
+#endif

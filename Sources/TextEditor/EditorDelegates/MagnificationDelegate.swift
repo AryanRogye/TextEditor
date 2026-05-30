@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/2/25.
 //
 
+#if os(macOS)
+
 import AppKit
 import Combine
 import SwiftUI
@@ -22,3 +24,4 @@ final class MagnificationDelegate: NSObject, ScrollViewMagnificationDelegate, Ob
         self.magnification.wrappedValue = magnification
     }
 }
+#endif

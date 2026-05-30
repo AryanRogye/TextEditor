@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/5/25.
 //
 
+#if os(macOS)
+
 import AppKit
 import SwiftUI
 import Combine
@@ -89,3 +91,4 @@ final class VimBottomView: NSView {
         layer?.addSublayer(topBorder)
     }
 }
+#endif

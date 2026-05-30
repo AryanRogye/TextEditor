@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/5/25.
 //
 
+#if os(macOS)
+
 import AppKit
 import LocalShortcuts
 
@@ -347,3 +349,4 @@ class VimEngine: ObservableObject {
         buffer.exitVisualMode()
     }
 }
+#endif

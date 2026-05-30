@@ -4,6 +4,8 @@
 //
 //  Created by Aryan Rogye on 12/7/25.
 //
+#if os(macOS)
+
 import AppKit
 
 @MainActor
@@ -52,3 +54,4 @@ public protocol BufferView {
     /// to move down and to the start of the line
     func moveDownAndStartOfLine()
 }
+#endif

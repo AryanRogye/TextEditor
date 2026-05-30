@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/5/25.
 //
 
+#if os(macOS)
+
 import SwiftUI
 import Combine
 
@@ -114,3 +116,4 @@ struct VimStatus: View {
         .frame(width: 100, height: 120)
     }
 }
+#endif

@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/6/25.
 //
 
+#if os(macOS)
+
 import AppKit
 
 extension ComfyTextView {
@@ -82,3 +84,4 @@ extension ComfyTextView {
         updateVimCursor(with: blockRect)
     }
 }
+#endif

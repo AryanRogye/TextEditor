@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/5/25.
 //
 
+#if os(macOS)
+
 enum VimState {
     case command
     case normal
@@ -27,3 +29,4 @@ extension VimState {
         }
     }
 }
+#endif

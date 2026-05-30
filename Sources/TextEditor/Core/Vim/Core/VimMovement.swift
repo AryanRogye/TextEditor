@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/7/25.
 //
 
+#if os(macOS)
+
 @MainActor
 extension VimEngine {
     internal func handleLastWordLeading() {
@@ -87,3 +89,4 @@ extension VimEngine {
         buffer.paste()
     }
 }
+#endif

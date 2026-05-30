@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/2/25.
 //
 
+#if os(macOS)
+
 import SwiftUI
 
 public struct ComfyTextEditor: NSViewControllerRepresentable {
@@ -71,6 +73,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         editorBackground: Color = .white,
         editorForegroundStyle: Color = .black,
         borderColor: Color = Color.gray.opacity(0.3),
+        syntaxKeyword : Color = .purple,
+        syntaxString  : Color = .green,
+        syntaxNumber  : Color = .orange,
+        syntaxComment : Color = .gray,
+        syntaxJsonKey : Color = .blue,
         onReady: @escaping (EditorCommands) -> Void = { _ in },
         onHighlight: @escaping (HighlightCommands) -> Void = { _ in },
         onSave : @escaping () -> Void = { },
@@ -96,6 +103,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             editorBackground: editorBackground,
             editorForegroundStyle: editorForegroundStyle,
             borderColor: borderColor,
+            syntaxKeyword: syntaxKeyword,
+            syntaxString: syntaxString,
+            syntaxNumber: syntaxNumber,
+            syntaxComment: syntaxComment,
+            syntaxJsonKey: syntaxJsonKey
         )
         self.borderRadius = borderRadius
         self.onHighlightUpdated = onHighlightUpdated
@@ -117,6 +129,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         syntaxHighlighting: SyntaxHighlightLanguage = .none,
         editorBackground: Color = .white,
         editorForegroundStyle: Color = .black,
+        syntaxKeyword : Color = .purple,
+        syntaxString  : Color = .green,
+        syntaxNumber  : Color = .orange,
+        syntaxComment : Color = .gray,
+        syntaxJsonKey : Color = .blue,
         borderColor: Color = Color.gray.opacity(0.3),
         onReady: @escaping (EditorCommands) -> Void = { _ in },
         onSave : @escaping () -> Void = { }
@@ -140,6 +157,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             editorBackground: editorBackground,
             editorForegroundStyle: editorForegroundStyle,
             borderColor: borderColor,
+            syntaxKeyword : syntaxKeyword,
+            syntaxString  : syntaxString,
+            syntaxNumber  : syntaxNumber,
+            syntaxComment : syntaxComment,
+            syntaxJsonKey : syntaxJsonKey,
             onReady: onReady,
             onHighlight: { _ in },
             onSave: onSave,
@@ -161,6 +183,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         editorForegroundStyle: Color = .black,
         borderColor: Color = Color.gray.opacity(0.3),
         borderRadius: CGFloat = 8,
+        syntaxKeyword : Color = .purple,
+        syntaxString  : Color = .green,
+        syntaxNumber  : Color = .orange,
+        syntaxComment : Color = .gray,
+        syntaxJsonKey : Color = .blue,
         onSearchRequested: @escaping () -> Void = { }
     ) {
         self.init(
@@ -182,6 +209,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             editorBackground: editorBackground,
             editorForegroundStyle: editorForegroundStyle,
             borderColor: borderColor,
+            syntaxKeyword : syntaxKeyword,
+            syntaxString  : syntaxString,
+            syntaxNumber  : syntaxNumber,
+            syntaxComment : syntaxComment,
+            syntaxJsonKey : syntaxJsonKey,
             onReady: { _ in },
             onHighlight: { _ in },
             onSave: { },
@@ -206,6 +238,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         editorForegroundStyle: Color = .black,
         borderColor: Color = Color.gray.opacity(0.3),
         borderRadius: CGFloat = 8,
+        syntaxKeyword : Color = .purple,
+        syntaxString  : Color = .green,
+        syntaxNumber  : Color = .orange,
+        syntaxComment : Color = .gray,
+        syntaxJsonKey : Color = .blue,
         onHighlightUpdated: @escaping (CGFloat) -> Void = { _ in },
         onHighlight: @escaping (HighlightCommands) -> Void = { _ in },
         onSearchRequested: @escaping () -> Void = { }
@@ -229,6 +266,11 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
             editorBackground: editorBackground,
             editorForegroundStyle: editorForegroundStyle,
             borderColor: borderColor,
+            syntaxKeyword : syntaxKeyword,
+            syntaxString  : syntaxString,
+            syntaxNumber  : syntaxNumber,
+            syntaxComment : syntaxComment,
+            syntaxJsonKey : syntaxJsonKey,
             onReady: { _ in },
             onHighlight: onHighlight,
             onSave: { },
@@ -462,3 +504,4 @@ public struct ComfyTextEditor: NSViewControllerRepresentable {
         }
     }
 }
+#endif

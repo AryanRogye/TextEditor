@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/8/25.
 //
 
+#if os(macOS)
+
 struct TextEngine {
     internal static func calcLastWordDistanceLeading(states: [ClassifierChar], idx: Int) -> Int? {
         if states.isEmpty { return nil }
@@ -138,3 +140,4 @@ struct TextEngine {
 
     
 }
+#endif

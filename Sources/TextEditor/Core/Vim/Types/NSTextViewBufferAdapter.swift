@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/7/25.
 //
 
+#if os(macOS)
+
 import AppKit
 
 @MainActor
@@ -505,3 +507,4 @@ public final class NSTextViewBufferAdapter: BufferView {
         textView.moveToBeginningOfLine(textView)
     }
 }
+#endif

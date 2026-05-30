@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/7/25.
 //
 
+#if os(macOS)
+
 import AppKit
 
 extension NSTextView {
@@ -20,3 +22,4 @@ extension NSTextView {
         }
     }
 }
+#endif

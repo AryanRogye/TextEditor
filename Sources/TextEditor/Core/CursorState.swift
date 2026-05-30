@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/7/25.
 //
 
+#if os(macOS)
+
 import Foundation
 
 @MainActor
@@ -24,3 +26,4 @@ final class CursorState: ObservableObject {
         isOnNewLine = buffer.isOnNewLine(position)
     }
 }
+#endif

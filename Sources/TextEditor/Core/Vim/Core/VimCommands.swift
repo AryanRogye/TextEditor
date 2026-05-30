@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/7/25.
 //
 
+#if os(macOS)
+
 import LocalShortcuts
 
 extension VimEngine {
@@ -135,3 +137,4 @@ extension VimEngine {
         keys: [.p]
     )
 }
+#endif

@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/7/25.
 //
 
+#if os(macOS)
+
 public enum ClassifierChar {
     case word
     case space
@@ -50,3 +52,4 @@ public enum ClassifierChar {
         }
     }
 }
+#endif

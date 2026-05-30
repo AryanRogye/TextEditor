@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/2/25.
 //
 
+#if os(macOS)
+
 import AppKit
 import Combine
 import SwiftUI
@@ -228,3 +230,4 @@ extension TextViewDelegate {
         return fontManager.traits(of: currentFont).contains(.boldFontMask)
     }
 }
+#endif

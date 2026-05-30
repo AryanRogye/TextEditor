@@ -5,6 +5,8 @@
 //  Created by Aryan Rogye on 12/2/25.
 //
 
+#if os(macOS)
+
 import AppKit
 import LocalShortcuts
 import SwiftUI
@@ -204,3 +206,4 @@ final class ComfyTextView: NSTextView {
         fatalError("init(coder:) has not been implemented")
     }
 }
+#endif
