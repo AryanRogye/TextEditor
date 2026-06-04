@@ -10,6 +10,22 @@
 import UIKit
 
 final class ComfyTextView: UITextView {
+    
+    private let placeholderLabel = UILabel()
+    
+    var placeholder: String = "" {
+        didSet {
+            placeholderLabel.text = placeholder
+        }
+    }
+    
+    override var text: String! {
+        didSet {
+            updatePlaceholder()
+        }
+    }
+
+    
     init() {
         let textStorage = NSTextStorage()
         let layoutManager = NSLayoutManager()
@@ -29,10 +45,49 @@ final class ComfyTextView: UITextView {
         font = UIFont(name: "SF Mono", size: 10)
         isEditable = true
         isSelectable = true
+        setupPlaceholder()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func updatePlaceholderSize(_ size: CGFloat) {
+        placeholderLabel.font = placeholderLabel.font.withSize(size)
+    }
+    
+    private func setupPlaceholder() {
+        placeholderLabel.textColor = .placeholderText
+        placeholderLabel.font = font
+        placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        addSubview(placeholderLabel)
+        
+        NSLayoutConstraint.activate([
+            placeholderLabel.leadingAnchor.constraint(
+                equalTo: leadingAnchor,
+                constant: textContainerInset.left + 5
+            ),
+            placeholderLabel.topAnchor.constraint(
+                equalTo: topAnchor,
+                constant: textContainerInset.top
+            )
+        ])
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(textChanged),
+            name: UITextView.textDidChangeNotification,
+            object: self
+        )
+    }
+    
+    @objc private func textChanged() {
+        updatePlaceholder()
+    }
+    
+    private func updatePlaceholder() {
+        placeholderLabel.isHidden = !text.isEmpty
     }
 }
 

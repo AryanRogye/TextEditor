@@ -30,15 +30,19 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
 
     /// font size computed
     private var fontSize: CGFloat {
-        textView.font?.pointSize ?? 30
+        textView.font?.pointSize ?? fontSizeSet
     }
+    
+    private var fontSizeSet: CGFloat
 
     init(
         backgroundColor: Color,
+        fontSize: CGFloat,
         isTextViewFocused: @escaping (Bool) -> Void,
         isKeyboardDismissed: @escaping (Bool) -> Void,
         onTextChange: @escaping (String) -> Void
     ) {
+        self.fontSizeSet = fontSize
         self.backgroundColor = backgroundColor
         self.isTextViewFocused = isTextViewFocused
         self.isKeyboardDismissed = isKeyboardDismissed
@@ -61,6 +65,7 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
 
     public override func loadView() {
         let root = UIView()
+        root.backgroundColor = .clear
         self.view = root
 
         lineNumberSeperatorView.translatesAutoresizingMaskIntoConstraints = false
@@ -72,6 +77,10 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
         lineNumberView.backgroundColor = .clear
         /// seperator background
         lineNumberSeperatorView.backgroundColor = .black
+        
+        view.backgroundColor = UIColor(backgroundColor)
+        scrollView.backgroundColor = UIColor(backgroundColor)
+        
 
         lineNumberView.textView = textView
 
@@ -82,9 +91,10 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
 
         textView.backgroundColor = UIColor(backgroundColor)
         textView.textColor = .black
-        textView.font = .systemFont(ofSize: 30)
+        textView.font = .systemFont(ofSize: fontSizeSet)
         textView.text = "Hello How Are You"
         textView.delegate = self
+        textView.updatePlaceholderSize(fontSizeSet)
         /// this forces us to use the scrollviews scrolling
         textView.isScrollEnabled = false
 
@@ -212,6 +222,7 @@ extension TextViewController {
         lineNumberView.setNeedsDisplay()
 
         textView.invalidateIntrinsicContentSize()
+        textView.updatePlaceholderSize(clamped)
         view.layoutIfNeeded()
     }
 
