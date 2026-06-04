@@ -269,3 +269,5 @@ The iOS `EditorCommands` currently exposes:
 - `magnifyIn()`
 
 The iOS target is intentionally separate from the macOS `TextEditor` target. Vim mode, syntax highlighting, chunked rendering, and highlight navigation currently live in the macOS target unless they are ported into `iOSTextEditor`.
+
+<img width="345" height="661" alt="Screenshot 2026-06-04 at 3 36 17 PM" src="https://github.com/user-attachments/assets/dc0ffc0d-dbdb-4abc-8609-f5d9b769928a" />
