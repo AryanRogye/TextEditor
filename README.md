@@ -1,5 +1,16 @@
 # TextEditor
 
+## Table of Contents
+
+- [What It Does](#what-it-does)
+- [Package Requirements](#package-requirements)
+- [Vim Support](#vim-support)
+- [Basic Usage](#basic-usage)
+- [Public Controls](#public-controls)
+- [Chunked Usage](#chunked-usage)
+- [Tests](#tests)
+- [iOS Target](#ios-target)
+
 This editor started inside **ComfyEditor** as a built‑in component. As I built more apps, I needed the same editor elsewhere, so I extracted it into a Swift package. That let me keep one generalized editor that I can reuse across all my projects instead of copy‑pasting the code.
 
 In short: **ComfyEditor ➜ Swift Package ➜ General‑purpose editor for all projects.**
@@ -175,3 +186,86 @@ swift test
 
 <img width="1288" height="886" alt="Screenshot 2026-05-06 at 9 06 34 PM" src="https://github.com/user-attachments/assets/9536a788-3b79-4243-9c41-6d6791567617" />
 
+## iOS Target
+
+The package also includes a separate iOS product and target named `iOSTextEditor`.
+
+### iOS Package Requirements
+
+- Platform: iOS 26+
+- Product: `iOSTextEditor`
+- Target: `iOSTextEditor`
+- Dependency: none
+
+### iOS Usage
+
+```swift
+import SwiftUI
+import iOSTextEditor
+
+struct iOSEditorView: View {
+    @State private var text = ""
+    @State private var isTextViewFocused = false
+    @State private var isKeyboardDismissed = true
+    @State private var isShowingLineNumbers = true
+    @State private var editorCommands: EditorCommands?
+
+    var body: some View {
+        VStack {
+            HStack {
+                Button("Focus") {
+                    editorCommands?.focusTextView()
+                }
+
+                Button(isKeyboardDismissed ? "Show Keyboard" : "Dismiss Keyboard") {
+                    if isKeyboardDismissed {
+                        editorCommands?.showKeyboardKeepingFocus()
+                    } else {
+                        editorCommands?.dismissKeyboardKeepingFocus()
+                    }
+                }
+
+                Button(isShowingLineNumbers ? "Hide Lines" : "Show Lines") {
+                    isShowingLineNumbers.toggle()
+                }
+            }
+
+            ComfyTextEditor(
+                text: $text,
+                placeholderText: "Start typing...",
+                fontSize: 20,
+                backgroundColor: .clear,
+                isTextViewFocused: $isTextViewFocused,
+                isKeyboardDismissed: $isKeyboardDismissed,
+                isShowingLineNumbers: $isShowingLineNumbers,
+                onReady: { commands in
+                    editorCommands = commands
+                }
+            )
+        }
+    }
+}
+```
+
+### iOS Public Controls
+
+The iOS `ComfyTextEditor` supports:
+
+- `text`: editable text binding.
+- `placeholderText`: optional placeholder shown when the editor is empty.
+- `fontSize`: initial editor font size.
+- `backgroundColor`: SwiftUI color used for the editor background.
+- `isTextViewFocused`: tracks whether the text view is focused.
+- `isKeyboardDismissed`: tracks whether the keyboard is currently dismissed.
+- `isShowingLineNumbers`: controls line number gutter visibility.
+- `onReady`: returns `EditorCommands` for host-app controls.
+
+The iOS `EditorCommands` currently exposes:
+
+- `focusTextView()`
+- `dismissKeyboardKeepingFocus()`
+- `showKeyboardKeepingFocus()`
+- `magnifyOut()`
+- `magnifyIn()`
+
+The iOS target is intentionally separate from the macOS `TextEditor` target. Vim mode, syntax highlighting, chunked rendering, and highlight navigation currently live in the macOS target unless they are ported into `iOSTextEditor`.
