@@ -17,9 +17,6 @@ final class ComfyScrollView: UIScrollView, UIScrollViewDelegate {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear
 
-        showsVerticalScrollIndicator = true
-        showsHorizontalScrollIndicator = true
-
         minimumZoomScale = 1.0
         maximumZoomScale = 4.0
         zoomScale = 1.0

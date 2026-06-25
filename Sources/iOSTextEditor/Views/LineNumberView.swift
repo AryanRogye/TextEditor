@@ -51,7 +51,7 @@ final class LineNumberView: UIView {
 
 
                 "\(lineNumber)".draw(
-                    at: CGPoint(x: 15, y: y),
+                    at: CGPoint(x: 10, y: y),
                     withAttributes: [
                         .font: font,
                         .foregroundColor: UIColor.secondaryLabel

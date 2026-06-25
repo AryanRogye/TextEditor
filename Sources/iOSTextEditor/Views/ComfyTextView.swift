@@ -8,6 +8,7 @@
 #if os(iOS)
 
 import UIKit
+import SwiftUI
 
 final class ComfyTextView: UITextView {
     
@@ -25,12 +26,13 @@ final class ComfyTextView: UITextView {
         }
     }
 
+    let placeholderColor: Color
     
-    init() {
+    init(placeholderColor: Color) {
         let textStorage = NSTextStorage()
         let layoutManager = NSLayoutManager()
         let textContainer = NSTextContainer()
-
+        self.placeholderColor = placeholderColor
 
         textContainer.widthTracksTextView = false
         textContainer.heightTracksTextView = false
@@ -57,7 +59,7 @@ final class ComfyTextView: UITextView {
     }
     
     private func setupPlaceholder() {
-        placeholderLabel.textColor = .placeholderText
+        placeholderLabel.textColor = UIColor(placeholderColor)
         placeholderLabel.font = font
         placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         

@@ -1,5 +1,5 @@
 {
-  "originHash" : "cd419b1303a3fd673da1572312874424fabb7c16fdbadec7d72ce25ddf2525d9",
+  "originHash" : "3ae1b3ff29e44d104886018eed03f5c06fa6b0db91abb7e7bb6c448139708640",
   "pins" : [
     {
       "identity" : "localshortcuts",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/AryanRogye/LocalShortcuts.git",
       "state" : {
         "branch" : "main",
-        "revision" : "e23ac76561eaed074fe22318dac1bd9467cce3a4"
+        "revision" : "c2a355cf39eb4d60839d0e3c3c83324647ec3ff4"
       }
     }
   ],

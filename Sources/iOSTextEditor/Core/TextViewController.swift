@@ -12,11 +12,15 @@ import SwiftUI
 public class TextViewController: UIViewController, UITextViewDelegate, EditorCommands {
 
     let scrollView = ComfyScrollView()
-    let textView = ComfyTextView()
+    let textView : ComfyTextView
+
     let lineNumberView = LineNumberView()
     let lineNumberSeperatorView = UIView()
 
+    private var editorFont: UIFont
+    let foregroundColor: Color
     let backgroundColor: Color
+    let placeholderColor: Color
     let isTextViewFocused: (Bool) -> Void
     let isKeyboardDismissed: (Bool) -> Void
     let onTextChange: (String) -> Void
@@ -30,23 +34,36 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
 
     /// font size computed
     private var fontSize: CGFloat {
-        textView.font?.pointSize ?? fontSizeSet
+        textView.font?.pointSize ?? editorFont.pointSize
     }
     
-    private var fontSizeSet: CGFloat
+    let allowHorizontalScrolling: Bool
+    let showVerticalScrollIndicator: Bool
+    let showHorizontalScrollIndicator: Bool
 
     init(
+        foregroundColor: Color,
         backgroundColor: Color,
-        fontSize: CGFloat,
+        placeholderColor: Color,
+        font: UIFont,
+        allowHorizontalScrolling: Bool,
+        showVerticalScrollIndicator: Bool,
+        showHorizontalScrollIndicator: Bool,
         isTextViewFocused: @escaping (Bool) -> Void,
         isKeyboardDismissed: @escaping (Bool) -> Void,
         onTextChange: @escaping (String) -> Void
     ) {
-        self.fontSizeSet = fontSize
+        self.foregroundColor = foregroundColor
         self.backgroundColor = backgroundColor
+        self.placeholderColor = placeholderColor
         self.isTextViewFocused = isTextViewFocused
         self.isKeyboardDismissed = isKeyboardDismissed
         self.onTextChange = onTextChange
+        self.editorFont = font
+        self.allowHorizontalScrolling = allowHorizontalScrolling
+        self.showVerticalScrollIndicator = showVerticalScrollIndicator
+        self.showHorizontalScrollIndicator = showHorizontalScrollIndicator
+        self.textView = ComfyTextView(placeholderColor: placeholderColor)
 
         /// setup the width
         lineNumberWidthConstraint = lineNumberView.widthAnchor.constraint(equalToConstant: lineNumberWidth)
@@ -55,8 +72,8 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
             /// the left side should be combination of the lineNumberView + the seperator width
             constant: -(lineNumberWidth + lineNumberSeperatorWidth)
         )
-
         super.init(nibName: nil, bundle: nil)
+
     }
 
     required init?(coder: NSCoder) {
@@ -87,26 +104,32 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
         scrollView.addSubview(lineNumberView)
         scrollView.addSubview(lineNumberSeperatorView)
         scrollView.addSubview(textView)
+        
+        scrollView.showsVerticalScrollIndicator = showVerticalScrollIndicator
+        scrollView.showsHorizontalScrollIndicator = showHorizontalScrollIndicator
+        
+        scrollView.contentInset.bottom = 640
+        scrollView.alwaysBounceVertical = true
+
         root.addSubview(scrollView)
 
         textView.backgroundColor = UIColor(backgroundColor)
-        textView.textColor = .black
-        textView.font = .systemFont(ofSize: fontSizeSet)
+        textView.textColor = UIColor(foregroundColor)
+        textView.font = editorFont
         textView.text = "Hello How Are You"
         textView.delegate = self
-        textView.updatePlaceholderSize(fontSizeSet)
+        textView.updatePlaceholderSize(editorFont.pointSize)
         /// this forces us to use the scrollviews scrolling
         textView.isScrollEnabled = false
 
-        NSLayoutConstraint.activate([
-
+        var constraints: [NSLayoutConstraint] = [
             /// ScrollView Constraints
             /// background view (expand all the way)
             scrollView.leadingAnchor.constraint(equalTo: root.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: root.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: root.bottomAnchor),
-
+            
             /// LineNumberView Constrains
             /// lineNumberView should go all the way to the left
             lineNumberView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
@@ -115,16 +138,16 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
             lineNumberView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
             /// set lineNumberView
             lineNumberWidthConstraint,
-
+            
             /// LineNumberSeperatorView Constraints
             lineNumberSeperatorView.leadingAnchor.constraint(equalTo: lineNumberView.trailingAnchor),
             lineNumberSeperatorView.widthAnchor.constraint(equalToConstant: lineNumberSeperatorWidth),
-
+            
             /// top bottom should stretch all the way
             lineNumberSeperatorView.topAnchor.constraint(equalTo: scrollView.frameLayoutGuide.topAnchor),
             lineNumberSeperatorView.bottomAnchor.constraint(equalTo: scrollView.frameLayoutGuide.bottomAnchor),
-
-
+            
+            
             /// TextView Constraints
             /// leading should go up to the lineNumberView
             textView.leadingAnchor.constraint(equalTo: lineNumberSeperatorView.trailingAnchor),
@@ -134,7 +157,16 @@ public class TextViewController: UIViewController, UITextViewDelegate, EditorCom
             textView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
             textViewWidthConstraint,
             textView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.heightAnchor)
-        ])
+        ]
+        if !allowHorizontalScrolling {
+            constraints.append(
+                scrollView.contentLayoutGuide.widthAnchor.constraint(
+                    equalTo: scrollView.frameLayoutGuide.widthAnchor
+                )
+            )
+        }
+        
+        NSLayoutConstraint.activate(constraints)
     }
 
 }
@@ -214,13 +246,16 @@ extension TextViewController {
 extension TextViewController {
     private func setEditorFontSize(_ size: CGFloat) {
         let clamped = min(max(size, 12), 60)
-
-        textView.font = textView.font?.withSize(clamped)
+        
+        let newFont = textView.font?.withSize(clamped)
         ?? UIFont.monospacedSystemFont(ofSize: clamped, weight: .regular)
-
+        
+        textView.font = newFont
+        editorFont = newFont
+        
         lineNumberView.fontSize = clamped * 0.55
         lineNumberView.setNeedsDisplay()
-
+        
         textView.invalidateIntrinsicContentSize()
         textView.updatePlaceholderSize(clamped)
         view.layoutIfNeeded()
